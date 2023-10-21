@@ -1,46 +1,50 @@
 package com.example.zadanie2
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.zadanie2.ui.theme.Zadanie2Theme
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class MainActivity : ComponentActivity() {
+
+class MainActivity : AppCompatActivity() {
+    private lateinit var editText: EditText
+    private lateinit var button: Button
+    private lateinit var textView: TextView
+    private lateinit var fahrenheitView: TextView
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            Zadanie2Theme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("Android")
+        try{
+            super.onCreate(savedInstanceState)
+            setContentView(R.layout.activity_main)
+
+            editText = findViewById(R.id.editText)
+            button = findViewById(R.id.button)
+            textView = findViewById(R.id.textView)
+            fahrenheitView = findViewById(R.id.fahrenheitView)
+            button.setOnClickListener {
+                val enteredText = editText.text
+                if (enteredText.isNotBlank()) {
+                    val degreesCelsius = enteredText.toString().toFloat()
+                    GlobalScope.launch(Dispatchers.Default) {
+                        val fahrenheit = calculateFahrenheit(degreesCelsius)
+                        withContext(Dispatchers.Main) {
+                            textView.text = "Podane stopnie $degreesCelsius°C"
+                            fahrenheitView.text = fahrenheit
+                        }
+                    }
                 }
             }
         }
+         catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    Zadanie2Theme {
-        Greeting("Android")
+    fun calculateFahrenheit(degrees: Float): String {
+        var degreesInFahrenheit = (degrees * 9 / 5) + 32
+        return "Przekonwertowane stopnie $degreesInFahrenheit°F"
     }
 }
